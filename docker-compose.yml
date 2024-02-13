@@ -1,0 +1,39 @@
+version: '1.0'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: my_postgres_container
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: hp
+      POSTGRES_USER: hs
+      POSTGRES_PASSWORD: hphs
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: 'redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
+    networks:
+      - app-tier
+  redis-sentinel:
+      image: 'bitnami/redis-sentinel:latest'
+      environment:
+        - REDIS_MASTER_HOST=localhost
+        - REDIS_SENTINEL_RESOLVE_HOSTNAMES=yes
+      ports:
+        - '26379:26379'
+      networks:
+        - app-tier
+
+volumes:
+  postgres_data:
